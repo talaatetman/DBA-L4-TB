@@ -4,10 +4,8 @@ const CACHE_NAME = 'dba-bank-v1';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './e-management.html',
-  './finance.html',
-  './human-resources.html',
-  './research-methods.html'
+  './RM-TB.html',
+  './Ma-IS-TB.html'
 ];
 
 // تثبيت الخدمة وتخزين الملفات
