@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة بنك الأسئلة التفاعلية - الأساسيات والتمويل السلوكي</title>
+    <style>
+        :root {
+            --primary-color: #1e293b;
+            --primary-light: #334155;
+            --secondary-color: #0284c7;
+            --secondary-hover: #0369a1;
+            --accent-color: #0d9488;
+            --correct-color: #16a34a;
+            --correct-bg: #f0fdf4;
+            --correct-border: #86efac;
+            --wrong-color: #dc2626;
+            --wrong-bg: #fef2f2;
+            --wrong-border: #fca5a5;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --border-radius: 14px;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 8px 25px rgba(0, 0, 0, 0.07);
+        }
+
+        /* Dark Mode Colors */
+        body.dark-mode {
+            --primary-color: #f8fafc;
+            --primary-light: #cbd5e1;
+            --secondary-color: #38bdf8;
+            --secondary-hover: #7dd3fc;
+            --accent-color: #2dd4bf;
+            --correct-color: #4ade80;
+            --correct-bg: #052e16;
+            --correct-border: #166534;
+            --wrong-color: #f87171;
+            --wrong-bg: #450a0a;
+            --wrong-border: #991b1b;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --shadow-md: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px 15px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            padding: 30px;
+            position: relative;
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        /* Dark Mode Toggle Button */
+        .top-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .theme-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .theme-btn:hover {
+            border-color: var(--secondary-color);
+            color: var(--secondary-color);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+            animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+
+        .shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        /* Start Screen Styling */
+        .option-group {
+            margin-bottom: 22px;
+        }
+
+        .option-group label.group-label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            font-size: 1rem;
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+        }
+
+        .btn-radio {
+            position: relative;
+        }
+
+        .btn-radio input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .btn-radio label {
+            display: block;
+            padding: 14px 18px;
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            color: var(--text-color);
+        }
+
+        .btn-radio input[type="radio"]:checked + label {
+            background: rgba(2, 132, 199, 0.08);
+            border-color: var(--secondary-color);
+            color: var(--secondary-color);
+            font-weight: 700;
+        }
+
+        .btn-start {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1.15rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 15px;
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+        }
+
+        .btn-start:hover {
+            opacity: 0.92;
+            transform: translateY(-1px);
+        }
+
+        /* Quiz Screen Styling */
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-weight: 700;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .badge-info {
+            background: rgba(2, 132, 199, 0.1);
+            color: var(--secondary-color);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background-color: var(--border-color);
+            border-radius: 4px;
+            margin-bottom: 22px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--secondary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .doctor-badge {
+            display: inline-block;
+            padding: 4px 14px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+            color: var(--secondary-color);
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            line-height: 1.7;
+            color: var(--primary-color);
+            min-height: 70px;
+        }
+
+        .answers-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .btn-answer {
+            padding: 16px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            border: 2px solid var(--border-color);
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-answer:hover:not(:disabled) {
+            border-color: var(--secondary-color);
+            background: var(--bg-color);
+            transform: translateY(-1px);
+        }
+
+        .btn-answer.correct {
+            background-color: var(--correct-bg) !important;
+            border-color: var(--correct-color) !important;
+            color: var(--correct-color) !important;
+        }
+
+        .btn-answer.wrong {
+            background-color: var(--wrong-bg) !important;
+            border-color: var(--wrong-color) !important;
+            color: var(--wrong-color) !important;
+        }
+
+        .btn-answer:disabled {
+            cursor: not-allowed;
+            opacity: 0.85;
+        }
+
+        .explanation-box {
+            display: none;
+            padding: 18px;
+            border-radius: var(--border-radius);
+            background: var(--bg-color);
+            border-right: 4px solid var(--secondary-color);
+            margin-bottom: 20px;
+            font-size: 0.98rem;
+        }
+
+        .explanation-box.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .explanation-title {
+            font-weight: 800;
+            margin-bottom: 6px;
+            color: var(--primary-color);
+        }
+
+        .btn-next {
+            width: 100%;
+            padding: 15px;
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-next:hover {
+            background: var(--secondary-hover);
+        }
+
+        .btn-next.active {
+            display: block;
+        }
+
+        .shortcut-hint {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 12px;
+        }
+
+        .key-tag {
+            background: var(--border-color);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        /* Results Screen */
+        .results-summary {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 18px auto;
+            border: 4px solid var(--secondary-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .score-number {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            line-height: 1;
+        }
+
+        .score-total {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .results-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card .val {
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: var(--secondary-color);
+        }
+
+        .stat-card .lbl {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .review-section {
+            margin-top: 30px;
+        }
+
+        .review-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin-bottom: 18px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border-color);
+            color: var(--wrong-color);
+        }
+
+        .wrong-item {
+            background: var(--wrong-bg);
+            border: 1px solid var(--wrong-border);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            margin-bottom: 15px;
+        }
+
+        .wrong-q-text {
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-color);
+        }
+
+        .wrong-details {
+            font-size: 0.92rem;
+            margin-bottom: 8px;
+        }
+
+        .your-ans { color: var(--wrong-color); font-weight: 700; }
+        .correct-ans { color: var(--correct-color); font-weight: 700; }
+
+        .wrong-exp {
+            font-size: 0.9rem;
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 8px;
+            border-right: 3px solid var(--wrong-color);
+            margin-top: 10px;
+            color: var(--text-color);
+        }
+
+        .btn-restart {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary-light);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-restart:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 20px 15px; }
+            h1 { font-size: 1.4rem; }
+            .question-text { font-size: 1.1rem; min-height: 60px; }
+            .answers-grid { grid-template-columns: 1fr; }
+            .btn-answer { padding: 14px; }
+            .shortcut-hint { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="main-container">
+    <div class="top-controls">
+        <span class="badge-info" id="mode-indicator">إكاديمية التمويل والاستثمار</span>
+        <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">
+            🌙 الوضع الداكن
+        </button>
+    </div>
+
+    <header>
+        <h1>منصة بنك الأسئلة التفاعلية</h1>
+        <p class="subtitle">الفكر الحديث فى مجال الاستثمار</p>
+    </header>
+
+    <!-- Start Screen -->
+    <div id="start-screen" class="screen active">
+        <div class="option-group">
+            <label class="group-label">اختر مجموعة الأسئلة:</label>
+            <div class="btn-group">
+                <div class="btn-radio">
+                    <input type="radio" id="doc-all" name="doctor" value="all" checked>
+                    <label for="doc-all">جميع الأسئلة (الكل)</label>
+                </div>
+                <div class="btn-radio">
+                    <input type="radio" id="doc-farouk" name="doctor" value="farouk">
+                    <label for="doc-farouk">د. محمد فاروق (أساسيات الاستثمار)</label>
+                </div>
+                <div class="btn-radio">
+                    <input type="radio" id="doc-bagha" name="doctor" value="bagha">
+                    <label for="doc-bagha">د. محمد باغة (التمويل السلوكي)</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="option-group">
+            <label class="group-label">وضع الاختبار:</label>
+            <div class="btn-group">
+                <div class="btn-radio">
+                    <input type="radio" id="mode-practice" name="quizMode" value="practice" checked>
+                    <label for="mode-practice">وضع التدريب (إظهار الشرح فوراً)</label>
+                </div>
+                <div class="btn-radio">
+                    <input type="radio" id="mode-exam" name="quizMode" value="exam">
+                    <label for="mode-exam">وضع الامتحان (إظهار النتيجة في النهاية)</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="option-group">
+            <label class="group-label">ترتيب الأسئلة:</label>
+            <div class="btn-group">
+                <div class="btn-radio">
+                    <input type="radio" id="order-seq" name="order" value="seq" checked>
+                    <label for="order-seq">ترتيب منظم </label>
+                </div>
+                <div class="btn-radio">
+                    <input type="radio" id="order-rand" name="order" value="rand">
+                    <label for="order-rand">ترتيب عشوائي </label>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-start" onclick="startQuiz()">بدء الاختبار الآن</button>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div id="quiz-screen" class="screen">
+        <div class="quiz-header">
+            <span id="question-count">السؤال 1 من 10</span>
+            <span id="current-score">النقاط: 0</span>
+        </div>
+        
+        <div class="progress-bar-container">
+            <div id="progress-bar" class="progress-bar"></div>
+        </div>
+
+        <div id="doctor-badge" class="doctor-badge">د. محمد فاروق</div>
+
+        <div id="question-text" class="question-text">نص السؤال هنا...</div>
+
+        <div class="answers-grid">
+            <button class="btn-answer" id="btn-true" onclick="checkAnswer(true)">
+                <span>✓</span> صح
+            </button>
+            <button class="btn-answer" id="btn-false" onclick="checkAnswer(false)">
+                <span>✗</span> خطأ
+            </button>
+        </div>
+
+        <div id="explanation-box" class="explanation-box">
+            <div class="explanation-title">💡 التوضيح العلمي:</div>
+            <div id="explanation-text">توضيح الإجابة...</div>
+        </div>
+
+        <button id="btn-next" class="btn-next" onclick="nextQuestion()">السؤال التالي ➔</button>
+
+        <div class="shortcut-hint">
+            💡 يمكنك استخدام المفاتيح: <span class="key-tag">1</span> أو <span class="key-tag">→</span> للإجابة بصح | <span class="key-tag">2</span> أو <span class="key-tag">←</span> للإجابة بخطأ | <span class="key-tag">Enter</span> للانتقال للتالي
+        </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="results-screen" class="screen">
+        <div class="results-summary">
+            <div class="score-circle">
+                <span id="final-score" class="score-number">0</span>
+                <span id="final-total" class="score-total">من 0</span>
+            </div>
+            <h2 id="results-title" class="results-title">أحسنت! أكملت الاختبار</h2>
+            <p id="results-percentage" style="color: var(--text-muted); font-size: 1.1rem; font-weight: 700;"></p>
+        </div>
+
+        <div class="stats-grid" id="stats-grid">
+            <!-- Dynamic stats generated via JS -->
+        </div>
+
+        <div id="review-section" class="review-section" style="display: none;">
+            <h3 class="review-title">مراجعة الأسئلة التي أجبت عليها بشكل خاطئ:</h3>
+            <div id="wrong-questions-container"></div>
+        </div>
+
+        <button class="btn-restart" onclick="restartQuiz()">إعادة الاختبار من جديد</button>
+    </div>
+</div>
+
+<script>
+    // Data Structure
+    const questionsFarouk = [
+        { q: "السوق الأولية هي سوق التداول بينما السوق الثانوية هي سوق الإصدار.", a: false, exp: "التصحيح: السوق الأولية هي سوق الإصدار (تُباع فيها الورقة لأول مرة)، بينما السوق الثانوية هي سوق التداول بين المستثمرين.", doc: "د. محمد فاروق" },
+        { q: "يحق لحملة السندات الاطلاع على دفاتر وسجلات الشركة.", a: false, exp: "التصحيح: حملة السندات دائنون للشركة وليسوا مالكين، لذلك لا يحق لهم الاطلاع على الدفاتر أو حضور الجمعية العمومية (هذا الحق للمساهمين فقط).", doc: "د. محمد فاروق" },
+        { q: "يتم في سوق النقد تداول أدوات مالية قصيرة الأجل نسبياً كأذون الخزانة، بينما تتداول في سوق رأس المال أدوات مالية طويلة الأجل نسبياً كالأسهم والسندات.", a: true, exp: "إجابة صحيحة: سوق النقد للأدوات قصيرة الأجل (أقل من سنة)، وسوق رأس المال للأدوات متوسطة وطويلة الأجل.", doc: "د. محمد فاروق" },
+        { q: "شركات السمسرة عبارة عن وسطاء مؤهلين للعمل في سوق تداول الأوراق المالية.", a: true, exp: "إجابة صحيحة: تعمل شركات السمسرة كوسطاء منفذين لأوامر البيع والشراء لحساب العملاء.", doc: "د. محمد فاروق" },
+        { q: "بورصة الأوراق المالية هي سوق منظم يتم فيه تداول الأوراق المالية من خلال نظام تداول إلكتروني يتلقى أوامر البيع والشراء ويقوم بالمقابلة بينهما على أساس السعر والكمية المحددة حسب كل أمر.", a: true, exp: "إجابة صحيحة: هذا هو التعريف الدقيق للبورصة كطريقة آلية لتنفيذ الأوامر.", doc: "د. محمد فاروق" },
+        { q: "سوق الإصدار هي السوق التي تُصدر وتُباع فيها الورقة المالية لأول مرة، بينما سوق التداول هي السوق التي يتم التعامل فيها على الورقة المالية بيعاً وشراءً بين المستثمرين.", a: true, exp: "إجابة صحيحة: سوق الإصدار (الأولية) وسوق التداول (الثانوية).", doc: "د. محمد فاروق" },
+        { q: "مؤشر EGX 30 هو مؤشر لقياس أنشط 30 شركة من حيث حركة التداول.", a: true, exp: "إجابة صحيحة: يقيس أداء أكبر 30 شركة من حيث السيولة والنشاط في البورصة المصرية.", doc: "د. محمد فاروق" },
+        { q: "الاكتتاب العام طريقة من طرق الإصدار يخاطب فيها المُصدر الجمهور العام.", a: true, exp: "إجابة صحيحة: موجه لكافة أفراد الجمهور دون تخصيص.", doc: "د. محمد فاروق" },
+        { q: "يححصل حملة الأسهم العادية على فوائد ثابتة.", a: false, exp: "التصحيح: حملة الأسهم العادية يحصلون على أرباح غير ثابتة متغيرة طبقاً لنتائج أعمال الشركة، بينما الفوائد الثابتة من حق حملة السندات.", doc: "د. محمد فاروق" },
+        { q: "الاكتتاب الخاص قاصر فقط على كبار المساهمين.", a: false, exp: "التصحيح: الاكتتاب الخاص يوجه لمستثمرين محددين أو مؤسسات مالية وليس قاصراً فقط على كبار المساهمين القدامى.", doc: "د. محمد فاروق" },
+        { q: "يحق لحملة السندات حضور الجمعية العمومية للمساهمين والإطلاع على دفاتر وسجلات الشركة.", a: false, exp: "التصحيح: حملة السندات هم دائنون للشركة وليس لهم حقوق ملكية كحضور الجمعيات أو الاطلاع على السجلات.", doc: "د. محمد فاروق" },
+        { q: "تصدر البورصة تقريراً يومياً عن حركة التداول على كل ورقة مالية مقيدة بها، وينشر التقرير على موقع البورصة على شبكة المعلومات الدولية كما ينشر بالجرائد اليومية في اليوم التالي.", a: true, exp: "إجابة صحيحة: للشفافية وإتاحة المعلومات لكافة المتعاملين.", doc: "د. محمد فاروق" },
+        { q: "يضم سوق خارج المقصورة الشركات التي يتم التداول عليها بالبورصة المصرية ولكنها ليست مقيدة بالبورصة ولا تطبق عليها شروط القيد والإفصاح التي تحكم الشركات المقيدة.", a: true, exp: "إجابة صحيحة: سوق خارج المقصورة مخصص للأوراق غير المقيدة رسمياً.", doc: "د. محمد فاروق" },
+        { q: "سوق الأوامر هي سوق يتم فيه تنفيذ الصفقات المتفق عليها مسبقاً من قبل العملاء وتقوم البورصة بالإعلان عن هذه الصفقات بعد تنفيذها.", a: false, exp: "التصحيح: هذا تعريف 'سوق الصفقات' وليس 'سوق الأوامر' الذي يعتمد على مقابلة الأوامر إلكترونياً.", doc: "د. محمد فاروق" },
+        { q: "بالنسبة للشركات المتداولة خارج المقصورة فإنها تتمتع بالحماية التي تقدمها الهيئة للمستثمرين في الشركات المقيدة.", a: false, exp: "التصحيح: لا تتمتع الشركات المتداولة خارج المقصورة بنفس مستويات الحماية والإفصاح المشترطة للشركات المقيدة داخل المقصورة.", doc: "د. محمد فاروق" },
+        { q: "تتم عملية التخصيص في حالة الاكتتاب العام على أساس النسبة والتناسب طبقاً لما تم نشره في نشرة الاكتتاب.", a: true, exp: "إجابة صحيحة: عند زيادة الطلب عن المعروض يتم التخصيص بنسبة التغطية.", doc: "د. محمد فاروق" },
+        { q: "وزارة المالية غير مسؤولة عن سندات الخزانة والإصدارات الحكومية الأخرى.", a: false, exp: "التصحيح: وزارة المالية هي الجهة الرسمية المسؤولة عن إصدار وإدارة أذون وسندات الخزانة الحكومية.", doc: "د. محمد فاروق" },
+        { q: "في ظل عمليات التصفية يقوم المصفي القضائي بتصفية أصول الشركة وسداد التزاماتها والتزامات التصفية وفي النهاية يتم سداد صافي قيمة التصفية على حملة السندات.", a: false, exp: "التصحيح: يتم سداد الديون والتزامات التصفية وحملة السندات (الدائنين) أولاً، وما يتبقى بعد ذلك يُوزع على المالكين (حملة الأسهم).", doc: "د. محمد فاروق" },
+        { q: "عمليات دمج الشركات لا يعتبر بموجبها انتهاء دورة حياة الورقة المالية للشركة المندمجة.", a: false, exp: "التصحيح: الاندماج ينهي دورة حياة الورقة المالية للشركة المندمجة حيث تنقضي شخصيتها الاعتبارية أو تُستبدل بأوراق الشركة الدامجة.", doc: "د. محمد فاروق" },
+        { q: "تلجأ الشركة المصدرة أحياناً لشراء جزء من أسهمها من كل أو بعض حملة الأسهم لتخفيض رأس المال الجزئي، وتعتبر إحدى صور انتهاء دورة الحياة لجزء من الأسهم المصدرة.", a: true, exp: "إجابة صحيحة: يُعرف بـ (أسهم الخزينة) التي تم تحييدها أو إلغاؤها لتخفيض رأس المال.", doc: "د. محمد فاروق" },
+        { q: "مذكرة المعلومات هي أداة الإفصاح عن الإصدار في حالة الاكتتاب الخاص.", a: true, exp: "إجابة صحيحة: في الاكتتاب العام تُستخدم 'نشرة الاكتتاب'، بينما يُستخدم في الخاص 'مذكرة المعلومات'.", doc: "د. محمد فاروق" },
+        { q: "الهيئة العامة للرقابة المالية مسؤولة عن الإصدارات المالية غير الحكومية.", a: true, exp: "إجابة صحيحة: تنظم الرقابة المالية كافة الإصدارات والأوراق المالية للشركات والمؤسسات غير الحكومية.", doc: "د. محمد فاروق" },
+        { q: "حالة تغطية الإصدار بالكامل هي الحالة المرغوب فيها من المصدر.", a: true, exp: "إجابة صحيحة: تعني نجاح عملية الاكتتاب وجمع كامل التمويل المطلوب.", doc: "د. محمد فاروق" },
+        { q: "عمليات التخصيص في حالة الاكتتاب العام تتم على أساس النسبة والتناسب خلافاً لما تم نشره في نشرة الاكتتاب.", a: false, exp: "التصحيح: يجب التقيُّد التام والتطبيق المباشر لما ورد في نشرة الاكتتاب دون خروج عنه.", doc: "د. محمد فاروق" },
+        { q: "تتمثل مرحلة انتهاء دورة حياة الورقة المالية في عمليات أسهم الخزينة وتخفيض رأس المال، أو عمليات دمج الشركات، أو عمليات التصفية.", a: true, exp: "إجابة صحيحة: هذه هي الحالات الرئيسية لشطب أو إنهاء وجود الورقة المالية.", doc: "د. محمد فاروق" },
+        { q: "الاستثمار المالي هو التخلي عن أموال يمتلكها الفرد في لحظة معينة ولفترة معينة من الزمن واستبدالها بأصل أو أكثر من الأصول المالية التي يحتفظ بها بقصد الحصول على تدفقات مالية مستقبلية.", a: true, exp: "إجابة صحيحة: هذا هو التعريف الأكاديمي الشامل للاستثمار المالي.", doc: "د. محمد فاروق" },
+        { q: "لا يحق للمستثمر الفرد التعامل في الأوراق المالية.", a: false, exp: "التصحيح: يحق للمستثمرين الأفراد التعامل مباشرة من خلال شركات الوساطة المعتمدة.", doc: "د. محمد فاروق" },
+        { q: "لا يختلف المستثمرون الأفراد عن بعضهم البعض من حيث الأهداف الاستثمارية الخاصة بكل منهم وبالتالي الأسباب التي تدفع كل منهم إلى الاستثمار في الأوراق المالية.", a: false, exp: "التصحيح: يختلف الأفراد بشكل جوهري في أهدافهم (نمو، دخل، أمان) وفي درجة تحملهم للمخاطر.", doc: "د. محمد فاروق" },
+        { q: "يهدف المضاربون المحترفون إلى الحصول على أكبر عائد ممكن في أقل فترة ممكنة ولكنهم لا يمتلكون أدوات تمكنهم من التفوق على أداء السوق.", a: false, exp: "التصحيح: المضاربون المحترفون يمتلكون أدوات وخبرات وتحليلات تمكنهم غالباً من اقتناص الفرص والتفوق.", doc: "د. محمد فاروق" },
+        { q: "يتسم المضاربون الهواة بالعشوائية وتكون النتيجة النهائية لهذه الفئة هي خروجها من السوق لتعرضهم لخسائر تفوق توقعاتهم.", a: true, exp: "إجابة صحيحة: لغياب الاستراتيجية والاعتماد على الشائعات والعواطف.", doc: "د. محمد فاروق" },
+        { q: "تهدف فئة المتلاعبين بالأسعار إلى التحكم والتأثير في أسعار الأوراق المالية وتوجيه السوق صعوداً وهبوطاً بوسائل مصطنعة ليصبح السعر السائد في سوق الأوراق المالية أعلى أو أدنى من السعر العادل.", a: true, exp: "إجابة صحيحة: وتعتبر هذه الممارسات غير قانونية وتكافحها الهيئات الرقابية.", doc: "د. محمد فاروق" },
+        { q: "المستثمرون هم الفئة التي توظف أموالها في شراء الأوراق المالية لتحقيق الأرباح على المدى القصير.", a: false, exp: "التصحيح: المستثمرون يستهدفون المدى المتوسط والطويل وعوائد مستمرة، بينما المضاربون يستهدفون المدى القصير.", doc: "د. محمد فاروق" },
+        { q: "من الدوافع الذاتية التي لها علاقة بخصائص الأفراد واتجاهاتهم نحو الاستثمار في الأوراق المالية خصائص ديموجرافية مثل السن والنوع والحالة التعليمية والوظيفية.", a: true, exp: "إجابة صحيحة: تؤثر هذه العوامل الديموجرافية بشكل مباشر على القرارات الاستثمارية.", doc: "د. محمد فاروق" },
+        { q: "يهتم التحليل الأساسي بتتبع حركة أسعار الأسهم في الماضي على أمل اكتشاف نمط لتلك الحركة والتنبؤ بما ستكون عليه أسعار تلك الأسهم في المستقبل.", a: false, exp: "التصحيح: هذا تعريف 'التحليل الفني'. أما التحليل الأساسي فيدرس القوائم المالية واقتصاد الشركة والقطاع.", doc: "د. محمد فاروق" },
+        { q: "يجب مراجعة المحفظة بشكل دوري حتى يتأكد المستثمر أن المحفظة ما زالت قادرة على تحقيق الأهداف الاستثمارية.", a: true, exp: "إجابة صحيحة: المراجعة والتعديل الدوري (Rebalancing) ضروري لإدارة المخاطر.", doc: "د. محمد فاروق" },
+        { q: "لا تساعد المعلومات الاستثمارية المستثمر في الاختيار الأمثل والفعال لمحفظة الأوراق المالية.", a: false, exp: "التصحيح: المعلومات هي الأساس الذي تبنى عليه القرارات الاستثمارية الرشيدة لبناء المحفظة.", doc: "د. محمد فاروق" },
+        { q: "تعتبر استراتيجية الشراء والاحتفاظ من أنسب الاستراتيجيات المتاحة أمام مستثمر الدخل لتحقيق نتائج في الأجل الطويل.", a: true, exp: "إجابة صحيحة: تناسب من يبحث عن عوائد دورية ومستقرة وتقليل تكاليف التداول.", doc: "د. محمد فاروق" },
+        { q: "تتعرض المؤسسة المالية القائمة على شؤون الإصدار للمسؤولية القانونية إذا تم تسعير السهم عند قيمة أعلى من قيمته الحقيقية أو عند قيمته الحقيقية ثم تعرضت قيمته السوقية لانخفاض شديد عقب الإصدار.", a: true, exp: "إجابة صحيحة: لتضليلها السوق والتسعير الخاطئ غير المستند لتقييم عادل.", doc: "د. محمد فاروق" },
+        { q: "تحليل الأوراق المالية هو الخطوة الأخيرة من خطوات عملية الاستثمار في الأوراق المالية.", a: false, exp: "التصحيح: تحليل الأوراق المالية يأتي في المبادئ الأولى قبل تكوين المحفظة، بينما تقييم ومراجعة الأداء هي الخطوة الأخيرة.", doc: "د. محمد فاروق" },
+        { q: "لا يحق مطلقاً للشركات إعادة شراء أسهمها عندما تكون أسهمها المتاحة أكبر من احتياجاتها الاستثمارية.", a: false, exp: "التصحيح: يحق للشركات شراء أسهمها (أسهم الخزينة) لتخفيض رأس المال أو دعم سعر السهم وفق الضوابط.", doc: "د. محمد فاروق" },
+        { q: "القيمة الاسمية للسهم هي القيمة التي يصدر بها سهم الشركة عند التأسيس، ويشكل مجموع القيم الاسمية لأسهم الشركة قيمة رأس مال الشركة المصدر.", a: true, exp: "إجابة صحيحة: هذا هو التحديد القانوني للقيمة الاسمية.", doc: "د. محمد فاروق" },
+        { q: "طبقاً للقانون فإن القيمة الاسمية يجب ألا تزيد على جنيه واحد.", a: false, exp: "التصحيح: القوانين تتحدد بحدود دنيا وقصوى مختلفة (مثلاً ألا تقل عن حد معين كالجنيه ولا تزيد عن حدود معينة كـ 1000 جنيه بحسب القانون)، والحد الأدنى في مصر أصبح قرشاً إلى 100 جنيه بعد التعديلات.", doc: "د. محمد فاروق" },
+        { q: "سعر تداول السهم اليومي هو عبارة عن المدى السعري الذي تم التنفيذ به لعمليات التداول خلال الجلسة.", a: true, exp: "إجابة صحيحة: النطاق بين أعلى وأقل سعر تم التداول به.", doc: "د. محمد فاروق" },
+        { q: "ربحية السهم هي عبارة عن إمكانية تحويل السهم إلى نقدية بسرعة وبأقل تكلفة وبسعر يقارب آخر سعر للتداول.", a: false, exp: "التصحيح: هذا تعريف 'سيولة السهم' وليست ربحية السهم.", doc: "د. محمد فاروق" },
+        { q: "تؤدي سيولة السهم إلى توفير فرص أوسع للشراء والبيع مما يزيد من جاذبيته الاستثمارية.", a: true, exp: "إجابة صحيحة: السيولة تخفض مخاطر عدم القدرة على الخروج من السهم.", doc: "د. محمد فاروق" },
+        { q: "يُقصد بتجزئة القيمة الاسمية للسهم تقسيم أسهمها الحالية إلى عدد أكبر من الأسهم بقيمة اسمية أقل دون التأثير على رأس المال المصدر أو رأس المال المدفوع.", a: true, exp: "إجابة صحيحة: تجزئة السهم (Stock Split) تزيل العبء السعري وتزيد عدد الأسهم دون تغيير رأس المال.", doc: "د. محمد فاروق" },
+        { q: "لا يعد الوصول بالسهم إلى مستويات سعرية متدنية من الأسباب الداعية إلى تجزئة القيمة الاسمية للسهم.", a: false, exp: "التصحيح: الداعي الرئيسي للتجزئة هو وصول السهم لمستويات سعرية 'مرتفعة جداً' تعوق تداوله، فيجزأ لتخفيض سعره السوقي وتشجيع صغار المستثمرين.", doc: "د. محمد فاروق" },
+        { q: "إن قرار تجزئة القيمة الاسمية لن يؤثر على قيمة ما يمتلكه المستثمر من أسهم ولا على التزاماته تجاه الشركة، إلا أن الأثر الوحيد المباشر هو زيادة عدد الأسهم التي يملكها بالمقابل.", a: true, exp: "إجابة صحيحة: الثروة الإجمالية للمستثمر تظل ثابتة لحظة التجزئة.", doc: "د. محمد فاروق" },
+        { q: "لا يتأثر مؤشر الأسعار بالبورصة بالتجزئة حيث يتم تحديد المؤشر لاستيعاب أثر التجزئة.", a: true, exp: "إجابة صحيحة: يتم تعديل مقسم المؤشر (Index Divisor) لمنع التشوه.", doc: "د. محمد فاروق" },
+        { q: "تلتزم الشركة بإنهاء إجراءات التجزئة بالبورصة خلال شهر على الأكثر من تاريخ صدور قرار الجمعية العامة بالتجزئة.", a: true, exp: "إجابة صحيحة: طبقاً لقواعد القيد والإفصاح المعمول بها.", doc: "د. محمد فاروق" },
+        { q: "تقوم الهيئة العامة للرقابة المالية بدور المنظم والرقيب لسوق رأس المال للتأكد من أن التعامل يتم على أوراق مالية سليمة.", a: true, exp: "إجابة صحيحة: حماية المتعاملين واستقرار الأسواق.", doc: "د. محمد فاروق" },
+        { q: "عملة الإصدار للسهم هي أحد المعايير الكمية المستخدمة عند دراسة طلب تجزئة الشركات للقيمة الاسمية لأسهمها.", a: false, exp: "التصحيح: عملة الإصدار معيار كيفي وليست معياراً كمياً.", doc: "د. محمد فاروق" },
+        { q: "نسبة الأسهم حرة التداول هي أحد المعايير الكيفية المستخدمة عند دراسة طلب تجزئة الشركات للقيمة الاسمية لأسهمها.", a: false, exp: "التصحيح: نسبة الأسهم حرة التداول معيار 'كمي' يقاس بأرقام ونسب مئوية.", doc: "د. محمد فاروق" },
+        { q: "يتم تصنيف الشركة على أنها شركة مهمشة العوائد أي أنها غير قادرة على سداد القروض البنكية التي لديها فضلاً عن أن صافي رأس المال العامل لدى هذه الشركة بالموجب.", a: false, exp: "التصحيح: الشركات مهمشة العوائد يكون صافي رأس المال العامل لديه بالسالب وتعاني تعثراً شديداً.", doc: "د. محمد فاروق" },
+        { q: "يعتبر مستوى الحوكمة بالشركة أحد المعايير الكمية المستخدمة عند دراسة طلب تجزئة الشركات للقيمة الاسمية للأسهم.", a: false, exp: "التصحيح: مستوى الحوكمة والالتزام بالإفصاح يعد معياراً 'كيفياً' (نوعياً).", doc: "د. محمد فاروق" }
+    ];
+
+    const questionsBagha = [
+        { q: "تقوم كفاءة أسواق المال على افتراض أن أسعار الأوراق المالية تعكس جميع المعلومات المتاحة عنها.", a: true, exp: "إجابة صحيحة: هذا هو الفرض الجوهري لفرضية كفاءة السوق (EMH).", doc: "د. محمد باغة" },
+        { q: "يُعد التمويل السلوكي التزاوج بين علم التمويل والعلوم السلوكية.", a: true, exp: "إجابة صحيحة: يدمج بين علم النفس والسلوك البشري من جهة والتمويل التقليدي من جهة أخرى.", doc: "د. محمد باغة" },
+        { q: "المستوى شبه القوي هو أحد المستويات التي حددها فاما لكفاءة السوق.", a: true, exp: "إجابة صحيحة: حدد يوجين فاما 3 مستويات (الضعيف، شبه القوي، والقوي).", doc: "د. محمد باغة" },
+        { q: "أدت الأزمات الاقتصادية وظهور نظرية التمويل السلوكي إلى التشكيك في فرضية كفاءة السوق.", a: true, exp: "إجابة صحيحة: كشفت الأزمات وجود سلوكيات غير رشيدة جماعية تؤدي للشذوذ المالي.", doc: "د. محمد باغة" },
+        { q: "تعتمد نظرية التمويل السلوكي على أن جميع المستثمرين يتخذون قراراتهم بعقلانية تامة دون تأثير للعوامل النفسية أو السلوكية.", a: false, exp: "التصحيح: هذا فرض 'التمويل التقليدي'. أما التمويل السلوكي فيؤكد تأثير العواطف والتحيزات والعشوائية.", doc: "د. محمد باغة" },
+        { q: "يهتم التمويل السلوكي بدراسة تأثير العوامل النفسية والعاطفية على القرارات الاستثمارية للمستثمرين.", a: true, exp: "إجابة صحيحة: يدور المفهوم الأساسي للمجال حول هذه المؤثرات.", doc: "د. محمد باغة" },
+        { q: "من أمثلة التحيزات السلوكية الجهل بقواعد الحساب والاعتماد على الطرق العقلية المختصرة (قواعد الإبهام) عند اتخاذ القرارات.", a: true, exp: "إجابة صحيحة: التبسيط الإدراكي يؤدي لتحيزات والاعتماد على القواعد المختصرة.", doc: "د. محمد باغة" },
+        { q: "يرى التمويل السلوكي أن المستثمرين ينظرون إلى الأرباح والخسائر بنفس الدرجة من التأثير النفسي.", a: false, exp: "التصحيح: وفقاً لنظرية الآفاق (Prospect Theory)، ألم الخسارة يعادل ضعف متعة تحقيق نفس القدر من الربح (تجنب الخسارة).", doc: "د. محمد باغة" },
+        { q: "يهدف التمويل السلوكي إلى فهم العلاقة بين المال والعواطف.", a: true, exp: "إجابة صحيحة: تفسير سبب اتخاذ الأفراد لقرارات غير منطقية بأموالهم.", doc: "د. محمد باغة" },
+        { q: "تزداد أعداد المستثمرين في سوق الأسهم عند انخفاض أسعار الأسهم بشكل كبير.", a: false, exp: "التصحيح: سلوكياً، يهرب معظم المستثمرين عند الانهيارات بسبب الخوف، ويهرعون للشراء عند الارتفاع الشديد (الذروة) بسبب الطمع وسلوك القطيع.", doc: "د. محمد باغة" },
+        { q: "تُعد غرائب السوق (Anomalies) دليلاً على توافق جميع الظواهر السوقية مع فرضية كفاءة السوق.", a: false, exp: "التصحيح: غرائب السوق دليل على 'فشل' أو عدم كفاءة السوق وعدم قدرة الفرضية التقليدية على تفسيرها.", doc: "د. محمد باغة" },
+        { q: "أسهم القيمة (Value Stocks) هي الأسهم التي تكون غالباً أقل من قيمتها الحقيقية.", a: true, exp: "إجابة صحيحة: تباع بسعر سوقي أقل من قيمتها العادلة أو الدفترية ومعدل توزيعاتها مرتفع.", doc: "د. محمد باغة" },
+        { q: "التمويل السلوكي عملية اختيار بديل للاستثمار من عدة بدائل بناءً على التقييم السليم لجميع البدائل.", a: true, exp: "إجابة صحيحة: ينطوي على دراسة كيفية تقييم واختيار البدائل واقعياً.", doc: "د. محمد باغة" },
+        { q: "أسهم النمو (Growth Stocks) تكون عادةً مقومة بأقل من قيمتها الحقيقية.", a: false, exp: "التصحيح: أسهم النمو تكون مقومة عادةً بسعر أعلى بالنسبة لقيمتها الدفترية نظراً للتوقعات العالية بنمو أرباحها.", doc: "د. محمد باغة" },
+        { q: "يمكن اتخاذ قرار سليم في التمويل السلوكي دون الحاجة للوصول إلى معلومات صحيحة.", a: false, exp: "التصحيح: جودة القرار تعتمد أساساً على صحة ودقة المعلومات المتاحة مع سلامة التفكير.", doc: "د. محمد باغة" },
+        { q: "تعتبر وزارة الاستثمار هي الجهة المسؤولة عن إعداد مقترح شامل لتعديل قانون سوق المال ليتواكب مع المتغيرات العالمية.", a: true, exp: "إجابة صحيحة: بالتنسيق مع الجهات التشريعية والرقابية.", doc: "د. محمد باغة" },
+        { q: "يُقصد بـ 'أثر الحجم' (Size Effect) أن عوائد أسهم الشركات كبيرة الحجم تكون أعلى من عوائد أسهم الشركات صغيرة الحجم.", a: false, exp: "التصحيح: أثر الحجم شذوذ مالي يعني أن أسهم الشركات 'صغيرة الحجم' تميل لتحقيق عوائد أعلى من الشركات الكبيرة.", doc: "د. محمد باغة" },
+        { q: "تنشأ ظاهرة سلوك القطيع (Herd Effect) والتلاعب بالأسعار نتيجة الممارسات السلوكية والطامعة، وفي ظل تشوه المعلومات ونقص الشفافية.", a: true, exp: "إجابة صحيحة: غياب المعلومات يجعل المتعاملين يقلدون الآخرين عشوائياً.", doc: "د. محمد باغة" },
+        { q: "تُعتبر نتائج قياس كفاءة السوق المالية أحكاماً مطلقة وثابتة ولا تتغير بمرور الزمن.", a: false, exp: "التصحيح: كفاءة السوق حالة ديناميكية تتغير بمرور الوقت مع تطور التشريعات والتكنولوجيا والإفصاح.", doc: "د. محمد باغة" },
+        { q: "يتسم أغلب الأشخاص بالرشادة والعقلانية الكاملة عند اتخاذ قراراتهم المالية والمحاسبة عليها.", a: false, exp: "التصحيح: يثبت التمويل السلوكي أن الرشادة محدودة (Bounded Rationality) وتتأثر بعوامل سيكولوجية.", doc: "د. محمد باغة" },
+        { q: "تعتبر وسائل الإعلام مثالاً على توفير المعلومات التي تشكل السلوك الاستثماري.", a: true, exp: "إجابة صحيحة: تلعب وسائل الإعلام دوراً محورياً في توجيه معنويات ونوايا المستثمرين.", doc: "د. محمد باغة" },
+        { q: "لا تؤثر قرارات المدراء بشأن الاستثمار والتمويل وبناء الهيكل المالي على كفاءة المؤسسات.", a: false, exp: "التصحيح: القرارات الإدارية تؤثر بشكل مباشر وجوهري على كفاءة المؤسسة وقيمتها السوقية.", doc: "د. محمد باغة" },
+        { q: "قواعد الإبهام هي طرق عقلية مختصرة تساعد العقل على تنظيم ومعالجة المعلومات بسرعة.", a: true, exp: "إجابة صحيحة: Heuristics تُستخدم لتبسيط واتخاذ القرارات المعقدة بسرعة.", doc: "د. محمد باغة" },
+        { q: "يشير 'البعد التنظيمي' لرفع كفاءة السوق إلى تركيز الجهات المختصة على دعم 'رشد المستثمر' Rational Investor.", a: false, exp: "التصحيح: البعد التنظيمي يركز على التشريعات والأطر الرقابية والبنية التحتية، بينما دعم رشد المستثمر يرتبط بالبعد التوعوي/السلوكي.", doc: "د. محمد باغة" },
+        { q: "المستثمرون الذين يتخذون القرارات عن جهل يكونون أكثر عرضة لجعل القرار ضعيفاً وتغذيه العاطفة.", a: true, exp: "إجابة صحيحة: نقص المعرفة يزيد الاعتماد على المشاعر كالخوف والطمع.", doc: "د. محمد باغة" },
+        { q: "الظواهر المالية تركز بشكل عميق على الناحية السيكولوجية للمستثمر وطبيعة مخاطر السوق.", a: true, exp: "إجابة صحيحة: السلوك السيكولوجي يسهم في تفسير تقلّبات المخاطر والظواهر.", doc: "د. محمد باغة" },
+        { q: "تقوم افتراضات نظرية كفاءة السوق الأساسية على عدم رشادة المستثمر.", a: false, exp: "التصحيح: تقوم النظرية التقليدية لكفاءة السوق على فرضية 'الرشادة الكاملة' للمستثمرين.", doc: "د. محمد باغة" },
+        { q: "تتسم أسهم القيمة بمعدل توزيعات مرتفع للسهم.", a: true, exp: "إجابة صحيحة: لأن أسعارها منخفضة مقارنة بأرباحها وتدفقاتها النقدیة.", doc: "د. محمد باغة" },
+        { q: "إن الشركات التي تتسم بارتفاع نسبة القيمة الدفترية إلى القيمة السوقية تتجه نحو التعثر المالي.", a: true, exp: "إجابة صحيحة: تدهور القيمة السوقية مقارنة بالدفترية مؤشر حاد على تقييم سلبي وخطر تعثر.", doc: "د. محمد باغة" },
+        { q: "يجب على المستثمر الفرد في بداية تعامله الابتعاد عن صناديق الاستثمار والاعتماد على جهده الفردي.", a: false, exp: "التصحيح: يُفضل للمبتدئين البدء بصناديق الاستثمار للاستفادة من الإدارة الاحترافية والتنوع.", doc: "د. محمد باغة" },
+        { q: "يُعبَّر عن القيمة الزمنية للنقود بمعدل العائد الخالي من المخاطر.", a: true, exp: "إجابة صحيحة: مثل العائد على أذون وسندات الخزانة الحكومية.", doc: "د. محمد باغة" },
+        { q: "افترضت نظرية التمويل التقليدية وجود علاقة عكسية بين العائد المتوقع والخطر المصاحب له.", a: false, exp: "التصحيح: افترضت علاقة 'طردية' (كلما زادت المخاطر زاد العائد المطلوب).", doc: "د. محمد باغة" },
+        { q: "المستثمر الذي يضع ثقة زائدة في أحكامه تكون تقديراته معتدلة وغير مبالغ فيها.", a: false, exp: "التصحيح: الثقة الزائدة (Overconfidence) تؤدي إلى التقليل من مخاطر السوق والمبالغة في دقة التقديرات الشخصية.", doc: "د. محمد باغة" },
+        { q: "تؤثر التحيزات العاطفية للمستثمر بشكل بالغ على أسعار الأصول المالية في الأسواق.", a: true, exp: "إجابة صحيحة: تسبب التحيزات الانحراف عن الأسعار التوازنية العادلة.", doc: "د. محمد باغة" },
+        { q: "الثقة الزائدة تلعب دوراً كبيراً في التداول غير الرشيد في سوق المال.", a: true, exp: "إجابة صحيحة: تدفع للتداول المفرط وتجاهل التحذيرات.", doc: "د. محمد باغة" },
+        { q: "تحيز التمثيل والمحافظة يُعتبر من التحيزات الإدراكية.", a: true, exp: "إجابة صحيحة: تنتمي إلى Cognitive Biases التي تتعلق بكيفية معالجة العقل للمعلومات.", doc: "د. محمد باغة" },
+        { q: "يركز المستثمر على الاختلافات الجوهرية للأحداث مع إهمال الخصائص الظاهرية.", a: false, exp: "التصحيح: عند الوقوع في التحيز السلوكي، يميل المستثمر للاهتمام بالخصائص الظاهرية والسطحية على حساب الجوهر.", doc: "د. محمد باغة" },
+        { q: "التحيزات العاطفية تجعل القرار الاستثماري أكثر دقة عند معالجة المعلومات.", a: false, exp: "التصحيح: التحيزات تشوه عملية معالجة المعلومات وتضعف دقة القرارات.", doc: "د. محمد باغة" },
+        { q: "اتخاذ المستثمر لقرارات استثمارية بناءً على حالته المزاجية يسبب تقلبات سريعة في الأسعار.", a: true, exp: "إجابة صحيحة: التقلب المزاجي يتُرجم لعمليات بيع وشراء عشوائية تسهم في تذبذب السعر.", doc: "د. محمد باغة" },
+        { q: "يقتصر تحيز الارتكاز (الترسيخ) على المستثمرين العاديين ولا يمتد إلى المحللين والخبراء المحترفين.", a: false, exp: "التصحيح: تشير الدراسات إلى أن المحللين والخبراء يتأثرون أيضاً بتحيز الارتكاز (Anchoring) على أسعار أو أرقام سابقة.", doc: "د. محمد باغة" },
+        { q: "تتشابه أسهم النمو تماماً مع مؤشرات أسهم القيمة.", a: false, exp: "التصحيح: تختلف تماماً؛ أسهم النمو تتميز بمضاعفات سعرية مرتفعة وتوزيعات أرباح منخفضة مقارنة بأسهم القيمة.", doc: "د. محمد باغة" },
+        { q: "تؤثر سلوكيات المستثمرين على الأداء الاستثماري لما يملكونه من أصول وبالتالي على أداء السوق ككل.", a: true, exp: "إجابة صحيحة: محصلة سلوك الأفراد تشكل الاتجاه العام للسوق.", doc: "د. محمد باغة" },
+        { q: "أثبتت النتائج أن الصدمة الموجبة في السوق المالي تؤثر بشكل أكبر وأقوى مقارنة بالصدمة السالبة.", a: false, exp: "التصحيح: الصدمات والأخبار السالبة يكون رد فعل السوق تجاهها أكبر وأشد تأثيراً بسبب نفور المستثمرين الشديد من الخسارة.", doc: "د. محمد باغة" },
+        { q: "يوصي الباحث بالتركيز على الاستثمار طويل الأجل بديلاً عن المضاربات العشوائية.", a: true, exp: "إجابة صحيحة: يقلل من أثر التحيزات النفسية والتقلبات قصيرة الأجل.", doc: "د. محمد باغة" },
+        { q: "يقوم تحيز التمثيل على مبدأ قانون الأعداد الصغيرة.", a: true, exp: "إجابة صحيحة: المبالغة في تعميم نتائج عينة صغيرة على المجتمع ككل.", doc: "د. محمد باغة" },
+        { q: "يقلل تحيز التفاؤل المبالغ فيه من الثقة الزائدة لدى المستثمر.", a: false, exp: "التصحيح: التفاؤل المبالغ فيه يغذي الثقة الزائدة ويرفعها وليس العكس.", doc: "د. محمد باغة" },
+        { q: "تحيز المحافظة يعبر عن تباطؤ المستثمر في تعديل حكمه أو قراره عند ورود معلومات جديدة.", a: true, exp: "إجابة صحيحة: التمسك بالرأي السابق وعدم التفاعل الكافي مع المستجدات (Conservatism Bias).", doc: "د. محمد باغة" },
+        { q: "تحدث غرائب السوق بشكل مستمر دائماً ولا يمكن أن تحدث مرة واحدة وتختفي.", a: false, exp: "التصحيح: بعض شذوذ وغرائب السوق يختفي بمجرد اكتشافها واستغلالها من المتعاملين، وبعضها يظهر بشكل مؤقت.", doc: "د. محمد باغة" },
+        { q: "تحيز الإسناد الذاتي أحد أهم مغذيات الثقة الزائدة لدى المستثمر.", a: true, exp: "إجابة صحيحة: نسبة النجاح للهارة الشخصية ونسبة الفشل لسوء الحظ (Self-Attribution Bias).", doc: "د. محمد باغة" },
+        { q: "يسهم تحيز المكان في تحقيق أفضل تنوع دولي للمحفظة الاستثمارية.", a: false, exp: "التصحيح: تحيز المكان (Home Bias) يدفع المستثمر للاستثمار في بلده/محيطه فقط، مما يعوق التنوع الدولي للمحفظة.", doc: "د. محمد باغة" },
+        { q: "يُعرف تحيز الإدراك المتأخر بتحيز إدراك الأمور بأثر رجعي.", a: true, exp: "إجابة صحيحة: الاعتقاد الخاطئ بعد وقوع الحدث بأنه كان متوقعاً ومكشوفاً من البداية (Hindsight Bias).", doc: "د. محمد باغة" },
+        { q: "يجب على المؤسسات المالية وشركات الوساطة رفع مستوى رشد المستثمر عبر برامج التوعية.", a: true, exp: "إجابة صحيحة: للحد من قرارات التداول العاطفية والعشوائية.", doc: "د. محمد باغة" },
+        { q: "حوكمة الشركات ترفع مستويات الشفافية وتمكن المتعاملين من احتكار المعلومات وتحقيق أرباح غير عادية.", a: false, exp: "التصحيح: الحوكمة والشفافية تمنع وتسد الطريق أمام احتكار المعلومات أو تحقيق أرباح غير عادية غير مشروعة.", doc: "د. محمد باغة" },
+        { q: "يجب على المستثمر الفرد تحديد المخاطر في محفظته المالية وقدرته على تحملها من وقت لآخر.", a: true, exp: "إجابة صحيحة: تغير الظروف الشخصية والسوقية يتطلب إعادة تقييم تحمّل المخاطر.", doc: "د. محمد باغة" },
+        { q: "برنامج 'ستوك رايدر' أحد برامج المحاكاة التي تساعد المستثمر وتزيد خبرته العملية.", a: true, exp: "إجابة صحيحة: يُستخدم كأداة محاكاة واقعية لأسواق المال بدون مخاطرة مالية حقيقية.", doc: "د. محمد باغة" },
+        { q: "يساهم علم النفس في تشجيع المستثمرين على تجميد مدخراتهم في أدوات مالية غير ذات عائد.", a: false, exp: "التصحيح: يفيد علم النفس التمويل في فهم دوافع المستثمرين وتوجيههم لنبذ مكتسبات التجميد والتوجه للاستثمار الرشيد المثمر.", doc: "د. محمد باغة" },
+        { q: "تحيز إهمال معدل الأساس يعني اعتماد المستثمر على المعلومات المرجعية وتجاهل المتغيرات الفردية.", a: false, exp: "التصحيح: يعني النسبة العكسية؛ وهي 'تجاهل النسب/المعلومات الإحصائية الأساسية والعامة' والتركيز فقط على معلومات محددة أو انطباعات عارضة.", doc: "د. محمد باغة" },
+        { q: "الجهل بقواعد الحساب هو عدم قدرة عقولنا على معالجة وحل مشكلة معينة بسهولة.", a: true, exp: "إجابة صحيحة: يتعلق بالصعوبة السلوكية والإدراكية في إجراء الحسابات الاحتمالية والمالية الدقيقة.", doc: "د. محمد باغة" },
+        { q: "بدأت شركات الاستثمار والبنوك الكبرى تقلل من استخدام نظرية التمويل السلوكي لتقوية علاقاتها التجارية.", a: false, exp: "التصحيح: على العكس، تتوسع المؤسسات المالية الكبرى في استخدام التمويل السلوكي لتفهم نماذج تفكير وحاجات العملاء وبناء استراتيجيات أصلح.", doc: "د. محمد باغة" },
+        { q: "يُقصد بتحيز المكان تفضيل المستثمر للأسواق المحلية على حساب الأسواق الدولية.", a: true, exp: "إجابة صحيحة: تفضيل ما هو مألوف وجغرافي على البدائل الأجنبية (Home Bias).", doc: "د. محمد باغة" }
+    ];
+
+    let currentQuestions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let wrongAnswers = [];
+    let isExamMode = false;
+    let userAnswersLog = [];
+
+    // Local Storage for Dark Mode
+    if (localStorage.getItem('quiz_theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        document.getElementById('theme-btn').innerText = '☀️ الوضع المضيء';
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('quiz_theme', isDark ? 'dark' : 'light');
+        document.getElementById('theme-btn').innerText = isDark ? '☀️ الوضع المضيء' : '🌙 الوضع الداكن';
+    }
+
+    function shuffle(array) {
+        let arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function startQuiz() {
+        const docChoice = document.querySelector('input[name="doctor"]:checked').value;
+        const orderChoice = document.querySelector('input[name="order"]:checked').value;
+        const modeChoice = document.querySelector('input[name="quizMode"]:checked').value;
+
+        isExamMode = (modeChoice === 'exam');
+
+        currentQuestions = [];
+        if (docChoice === 'farouk') {
+            currentQuestions = [...questionsFarouk];
+        } else if (docChoice === 'bagha') {
+            currentQuestions = [...questionsBagha];
+        } else {
+            currentQuestions = [...questionsFarouk, ...questionsBagha];
+        }
+
+        if (orderChoice === 'rand') {
+            currentQuestions = shuffle(currentQuestions);
+        }
+
+        currentIndex = 0;
+        score = 0;
+        wrongAnswers = [];
+        userAnswersLog = [];
+
+        document.getElementById('mode-indicator').innerText = isExamMode ? 'وضع الامتحان الرسمى' : 'وضع التدريب التفاعلي';
+        showScreen('quiz-screen');
+        loadQuestion();
+    }
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    function loadQuestion() {
+        const q = currentQuestions[currentIndex];
+        
+        document.getElementById('question-count').innerText = `السؤال ${currentIndex + 1} من ${currentQuestions.length}`;
+        document.getElementById('current-score').innerText = isExamMode ? `المتبقي: ${currentQuestions.length - currentIndex}` : `النقاط: ${score}`;
+        document.getElementById('doctor-badge').innerText = q.doc;
+        document.getElementById('question-text').innerText = q.q;
+
+        // Accurate Progress Bar Calculation
+        const progressPercent = ((currentIndex + 1) / currentQuestions.length) * 100;
+        document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+
+        // Reset buttons & elements
+        const btns = document.querySelectorAll('.btn-answer');
+        btns.forEach(btn => {
+            btn.classList.remove('correct', 'wrong');
+            btn.disabled = false;
+        });
+
+        document.getElementById('explanation-box').classList.remove('active');
+        document.getElementById('btn-next').classList.remove('active');
+    }
+
+    function checkAnswer(userAnswer) {
+        const q = currentQuestions[currentIndex];
+        const btns = document.querySelectorAll('.btn-answer');
+        const container = document.getElementById('main-container');
+        
+        btns.forEach(btn => btn.disabled = true);
+        const isCorrect = (userAnswer === q.a);
+
+        userAnswersLog.push({ question: q, userAns: userAnswer, isCorrect: isCorrect });
+
+        if (isCorrect) {
+            score++;
+            if (!isExamMode) {
+                if (userAnswer === true) btns[0].classList.add('correct');
+                else btns[1].classList.add('correct');
+            }
+        } else {
+            if (!isExamMode) {
+                // Shake Effect on Wrong Answer
+                container.classList.add('shake');
+                setTimeout(() => container.classList.remove('shake'), 400);
+
+                if (userAnswer === true) {
+                    btns[0].classList.add('wrong');
+                    btns[1].classList.add('correct');
+                } else {
+                    btns[1].classList.add('wrong');
+                    btns[0].classList.add('correct');
+                }
+
+                wrongAnswers.push({
+                    question: q.q,
+                    userAns: userAnswer ? "صح" : "خطأ",
+                    correctAns: q.a ? "صح" : "خطأ",
+                    explanation: q.exp,
+                    doc: q.doc
+                });
+            }
+        }
+
+        if (isExamMode) {
+            // In exam mode, proceed directly to next or show submit button
+            setTimeout(() => {
+                nextQuestion();
+            }, 150);
+        } else {
+            document.getElementById('current-score').innerText = `النقاط: ${score}`;
+            document.getElementById('explanation-text').innerText = q.exp;
+            document.getElementById('explanation-box').classList.add('active');
+            document.getElementById('btn-next').classList.add('active');
+        }
+    }
+
+    function nextQuestion() {
+        currentIndex++;
+        if (currentIndex < currentQuestions.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        showScreen('results-screen');
+        
+        // Populate Exam Mode Wrong Answers if needed
+        if (isExamMode) {
+            wrongAnswers = [];
+            userAnswersLog.forEach(item => {
+                if (!item.isCorrect) {
+                    wrongAnswers.push({
+                        question: item.question.q,
+                        userAns: item.userAns ? "صح" : "خطأ",
+                        correctAns: item.question.a ? "صح" : "خطأ",
+                        explanation: item.question.exp,
+                        doc: item.question.doc
+                    });
+                }
+            });
+        }
+
+        document.getElementById('final-score').innerText = score;
+        document.getElementById('final-total').innerText = `من ${currentQuestions.length}`;
+        
+        const percentage = Math.round((score / currentQuestions.length) * 100);
+        document.getElementById('results-percentage').innerText = `نسبة النجاح الإجمالية: ${percentage}%`;
+
+        let titleText = "";
+        if (percentage >= 90) titleText = "ممتاز جداً! أداء استثنائي واستيعاب مكتمل 🌟";
+        else if (percentage >= 75) titleText = "جيد جداً! تمكن ممتاز من معظم المفاهيم 👍";
+        else if (percentage >= 50) titleText = "جيد! يحتاج بعض المراجعة للنقاط الدقيقة 📚";
+        else titleText = "تحتاج إلى إعادة مراجعة المواد الدراسية بتأنٍ 💡";
+        
+        document.getElementById('results-title').innerText = titleText;
+
+        // Render Stats Grid
+        const statsGrid = document.getElementById('stats-grid');
+        const faroukQuestions = userAnswersLog.filter(x => x.question.doc.includes("فاروق"));
+        const baghaQuestions = userAnswersLog.filter(x => x.question.doc.includes("باغة"));
+
+        let statsHTML = '';
+        if (faroukQuestions.length > 0) {
+            const faroukCorrect = faroukQuestions.filter(x => x.isCorrect).length;
+            const faroukPercent = Math.round((faroukCorrect / faroukQuestions.length) * 100);
+            statsHTML += `
+                <div class="stat-card">
+                    <div class="val">${faroukPercent}%</div>
+                    <div class="lbl">د. محمد فاروق (${faroukCorrect}/${faroukQuestions.length})</div>
+                </div>
+            `;
+        }
+        if (baghaQuestions.length > 0) {
+            const baghaCorrect = baghaQuestions.filter(x => x.isCorrect).length;
+            const baghaPercent = Math.round((baghaCorrect / baghaQuestions.length) * 100);
+            statsHTML += `
+                <div class="stat-card">
+                    <div class="val">${baghaPercent}%</div>
+                    <div class="lbl">د. محمد باغة (${baghaCorrect}/${baghaQuestions.length})</div>
+                </div>
+            `;
+        }
+        statsGrid.innerHTML = statsHTML;
+
+        // Render Wrong Answers
+        const wrongContainer = document.getElementById('wrong-questions-container');
+        wrongContainer.innerHTML = "";
+
+        if (wrongAnswers.length > 0) {
+            document.getElementById('review-section').style.display = 'block';
+            wrongAnswers.forEach((item, idx) => {
+                const el = document.createElement('div');
+                el.className = 'wrong-item';
+                el.innerHTML = `
+                    <div style="font-size:0.82rem; color:var(--secondary-color); font-weight:700; margin-bottom:4px;">[${item.doc}]</div>
+                    <div class="wrong-q-text">${idx + 1}. ${item.question}</div>
+                    <div class="wrong-details">
+                        إجابتك: <span class="your-ans">${item.userAns}</span> | 
+                        الإجابة الصحيحة: <span class="correct-ans">${item.correctAns}</span>
+                    </div>
+                    <div class="wrong-exp"><strong>الشرح:</strong> ${item.explanation}</div>
+                `;
+                wrongContainer.appendChild(el);
+            });
+        } else {
+            document.getElementById('review-section').style.display = 'none';
+        }
+    }
+
+    function restartQuiz() {
+        showScreen('start-screen');
+    }
+
+    // Keyboard Navigation Shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (!document.getElementById('quiz-screen').classList.contains('active')) return;
+        
+        const nextBtn = document.getElementById('btn-next');
+        const trueBtn = document.getElementById('btn-true');
+        const falseBtn = document.getElementById('btn-false');
+        
+        if (!trueBtn.disabled) {
+            if (e.key === 'ArrowRight' || e.key === '1') {
+                checkAnswer(true);
+            } else if (e.key === 'ArrowLeft' || e.key === '2') {
+                checkAnswer(false);
+            }
+        } else if (nextBtn.classList.contains('active') && (e.key === 'Enter' || e.key === ' ')) {
+            nextQuestion();
+        }
+    });
+</script>
+</body>
+</html>
