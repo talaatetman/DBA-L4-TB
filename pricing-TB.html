@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الأسس العلمية الحديثة فى تسعير المنتجات</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+        :root { --primary-color: #5145BA; --success-color: #28a745; --error-color: #dc3545; --bg-color: #f4f4f9; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background: var(--primary-color); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+        .container { background: white; width: 100%; max-width: 570px; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: none; }
+        .container.active { display: block; }
+        h2 { color: var(--primary-color); margin-bottom: 20px; text-align: center; }
+        .setting-group { margin-bottom: 20px; }
+        .group-label { display: block; margin-bottom: 10px; font-weight: bold; font-size: 0.95rem; }
+        .grid-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        .chip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .chip { padding: 10px; border: 2px solid #ddd; background: white; cursor: pointer; border-radius: 8px; transition: 0.3s; text-align: center; font-weight: 500;}
+        .chip.active { border-color: var(--primary-color); background: #EEF2FF; color: var(--primary-color); font-weight: 900; }
+        input { width: 100%; padding: 12px; border: 2px solid #EDF2F7; border-radius: 12px; font-size: 1rem; margin-top: 5px; outline: none; }
+        .max-hint { display: block; font-size: 0.8rem; color: #718096; margin-top: 5px; }
+        .start-btn { width: 100%; padding: 15px; background: var(--primary-color); color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 20px; }
+        .question-block { margin-bottom: 25px; }
+        .question-text { font-size: 1.2rem; margin-bottom: 20px; color: #444; font-weight: bold; line-height: 1.4; }
+        .option-item { padding: 14px; border: 2px solid #EDF2F7; margin-bottom: 10px; border-radius: 12px; cursor: pointer; }
+        .option-item.correct { background: #C6F6D5; border-color: #48BB78; color: #22543D; }
+        .option-item.incorrect { background: #FED7D7; border-color: #F56565; color: #742A2A; }
+        .option-item.selected-temp { border-color: var(--primary-color); background: #EBF4FF; }
+        .locked { pointer-events: none; }
+    </style>
+</head>
+<body>
+    <div id="setup-screen" class="container active">
+        <h2>الأسس العلمية الحديثة فى تسعير المنتجات</h2>
+        <div class="setting-group">
+            <span class="group-label">اختر القسم:</span>
+            <div class="grid-options" id="category-selector">
+                <button class="chip active" data-value="all">المنهج كامل</button>
+                <button class="chip" data-value="drmf">اسئلة د محمد فاروق</button>
+                <button class="chip" data-value="drmb">اسئلة د محمد الباز</button>
+
+            </div>
+        </div>
+        <div class="setting-group">
+            <span class="group-label">نظام الأسئلة:</span>
+            <div class="chip-grid" id="order-selector">
+                <button class="chip active" data-value="fixed">ثابت (كل اسئلة القسم المختار)</button>
+                <button class="chip" data-value="random">ترتيب عشوائى (ادخل عدد الاسئلة)</button>
+            </div>
+        </div>
+        <div id="num-section" class="setting-group" style="display: none;">
+            <span class="group-label">العدد:</span>
+            <input type="number" id="num-input">
+            <span class="max-hint" id="max-label"></span>
+        </div>
+        <div class="setting-group">
+            <span class="group-label">النمط:</span>
+            <div class="chip-grid" id="mode-combined">
+                <button class="chip active" data-value="exam_all">اختبار (كل الاسئلة فى ورقة واحدة)</button>
+                <button class="chip" data-value="study_one">مذاكرة (عرض سؤال بسؤال)</button>
+            </div>
+        </div>
+        <button class="start-btn" onclick="initQuiz()">ابدأ المراجعة</button>
+    </div>
+
+    <div id="quiz-screen" class="container">
+        <div id="quiz-content"></div>
+        <button id="submit-btn" class="start-btn" style="display:none" onclick="handleFullSubmit()">إنهاء</button>
+        <button id="next-btn" class="start-btn" style="display:none" onclick="nextQuestion()">التالي</button>
+        <p id="q-counter" style="text-align:center; margin-top:10px;"></p>
+    </div>
+
+    <div id="result-screen" class="container">
+        <h2 id="res-title">النتيجة</h2>
+        <p id="res-msg" style="text-align:center; font-size:1.5rem;"></p>
+        <div id="mistakes-report"></div>
+        <button class="start-btn" onclick="location.reload()">العودة</button>
+    </div>
+
+    <script>
+        const db = [{"cat":"drmf","q":"ُعرَّف التسعير من منظور استراتيجي بأنه العملية التنافسية الوحيدة ضمن المزيج التسويقي التي تولد إيرادات مباشرة للشركة بينما تمثل بقية العناصر تكاليف إضافية.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"تتأثر قرارات التسعير في المنظمات الكبيرة بالمرونة السعرية للطلب فقط، دون الحاجة لنماذج تحليل سلوك المستهلك أو ردود أفعال المنافسين.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"تُعد التكاليف الثابتة والتكاليف المتغيرة من العوامل الداخلية الأساسية التي تحدد الحد الأدنى (Pricing Floor) لسعر المنتج أو الخدمة.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"تنحصر قرارات التسعير الدولية في تحويل الأسعار المحلية إلى العملات الأجنبية بناءً على أسعار الصرف دون مراعاة القوة الشرائية أو التشريعات الضريبية للدول المستهدفة.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"يُشير القيد الهيكلي في السوق (مثل المنافسة الكاملة أو احتكار القلة) إلى أنه عامل خارجي حاسم يحد من قدرة المنظمة على فرض \"قيادة السعر\" (Price Leadership).","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"يفترض التسعير القائم على القيمة المدركة (Value-Based Pricing) البدء بحساب تكاليف الإنتاج أولاً ثم إضافة هامش الربح المستهدف لتحديد السعر النهائي.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"تلعب الصورة الذهنية للموجة العلامية (Brand Image) دوراً محورياً كعامل داخلي يُمكن المنظمة من اعتماد استراتيجيات التسعير المرتفع (Premium Pricing).","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"تُعد الأهداف الاستراتيجية الشاملة للمنظمة (مثل اختراق السوق أو تعظيم الربحية قصيرة الأجل) من العوامل الخارجية المؤثرة في قرارات التسعير.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"يتطلب التسعير في الأسواق ذات مرونة الطلب المرتفعة (Elastic Demand) خفض الأسعار لزيادة الإيرادات الإجمالية للمنظمة.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"القوانين والتشريعات المناهضة للممارسات الاحتكارية والتسعير التمييزي تُعتبر من العوامل الداخلية المساندة لمتخذ القرار التسعييري.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"تتأثر قرارات التسعير في قطاع الخدمات بطبيعة عدم الملموسية وصعوبة التخزين، مما يدفع المنظمات لإدارة الطلب عن طريق التسعير الديناميكي.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"يُعتبر تحليل نقطة التعادل (Break-Even Analysis) أداة تسعيرية تعتمد كلياً على القيمة التي يراها العميل بدلاً من التكاليف.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"يُساهم التسعير النفسي (Psychological Pricing) في التأثير على الإدراك السلوكي للمستهلك من خلال استغلال العتبات الحسية للأسعار.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"تُشير استراتيجية التسعير المفترس (Predatory Pricing) إلى تحديد أسعار مرتفعة جداً لإقصاء المنافسين الصغار من السوق بشكل قانوني.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"تؤثر القنوات التوزيعية المعتمدة ومستويات هامش الربح المطلوبة من الوسطاء كعامل بيئي داخلي وخارجي في تحديد السعر النهائي للمستهلك.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"تعتمد استراتيجية كشط السوق (Market-Skimming Pricing) على تحديد أسعار أوليّة مرتفعة لاستخلاص أقصى إيرادات ممكنة من القطاعات الأقل تأثراً بالسعر قبل دخول المنافسين.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"تُعتبر استراتيجية التغلغل السعري (Market-Penetration Pricing) الخيار الأمثل عند طرح منتجات فريدة وتكنولوجية معقدة في سوق صغير الحجم.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"تبدأ أولى مراحل تحديد أهداف التسعير بالتحليل المباشر لتكاليف منافسي القطاع وقدراتهم الإنتاجية.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"تهدف مرحلة \"تحديد أهداف التسعير\" إلى توجيه القرارات التسعيرية لتتوافق مع الأهداف الاستراتيجية العليا للمنظمة (مثل البقاء، تعظيم الأرباح، أو زيادة الحصة السوقية).","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"تُستخدم استراتيجية التسعير على أساس حزمة المنتجات (Product Bundle Pricing) لتقليل القيمة المدركة للمنتجات الضعيفة وتصفيتها نهائياً.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"تتطلب مرحلة \"تقدير الطلب ومرونته\" حساب مدى استجابة الكمية المطلوبة للتغيرات في السعر لضمان عدم تأثر الإيرادات سلباً عند تغيير السعر.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"الاستراتيجية التي تعتمد على تحديد سعر منخفض للمنتج الأساسي وسعر مرتفع للمستلزمات التكميلية تُعرف باستراتيجية تسعير المنتجات الأسيرة (Captive-Product Pricing).","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"مرحلة \"تحديد التكاليف\" في العملية التسعيرية تقتصر فقط على التكاليف المباشرة المترتبة على العملية الإنتاجية دون التكاليف التسويقية والإدارية.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"ترتكز استراتيجية التسعير الديناميكي (Dynamic Pricing) على تعديل الأسعار باستمرار وفي الوقت الفعلي بناءً على تغيرات الطلب، العرض، وسلوك العميل.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"في مرحلة \"تحليل أسعار وعروض المنافسين\"، يُفترض أن تعتمد المنظمة السعر المنافس كمعيار نهائي وثابت لسعر منتجها دون مراعاة ميزتها التنافسية.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"تُستخدم استراتيجية الأسعار القيادية (Price Leadership) عندما تقوم الشركة الرائدة في السوق بتحديد السعر وتتبعها بقية الشركات في القطاع.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"المرحلة الأخيرة في عملية تحديد أهداف وسياسات التسعير هي اختيار طريقة التسعير المناسبة ثم تحديد السعر النهائي مع مراعاة العوامل العاطفية والقانونية.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"تُعتبر استراتيجية التسعير الجغرافي (Geographic Pricing) غير ذات جدوى للشركات التي تتعامل في المنتجات ثقيلة الوزن أو عالية تكاليف النقل.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"تُركز المنظمات ذات الأهداف القائمة على \"البقاء\" (Survival Objective) على تعظيم هومش الربح الأجل للأسهم بدلاً من تغطية التكاليف المتغيرة وبعض التكاليف الثابتة.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"يُسهم تحديد هدف \"قيادة جودة المنتج\" في اتخاذ قرارات تسعيرية تتجه نحو الأسعار المرتفعة لتمويل أنشطة البحث والتطوير وضمان التميز.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"تتميز مرحلة التقديم (Introduction Stage) بإمكانية استخدام إما استراتيجية التغلغل السعري أو كشط السوق اعتماداً على طبيعة المنتج ودرجة المنافسة المتوقعة.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"في مرحلة النمو (Growth Stage)، تلتزم المنظمات بزيادة الأسعار بشكل حاد لتغطية تكاليف البحث والتطوير المتبقية من مرحلة التقديم.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"تتميز مرحلة النضج (Maturity Stage) باستقرار الأسعار وتزايد الضغوط السعرية والتخفيضات الدفاعية نتيجة الممارسات التنافسية الشديدة وحجم الطاقة الإنتاجية الفائضة.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"تُفرض استراتيجية رفع الأسعار بحدة خلال مرحلة الانحدار (Decline Stage) للحفاظ على الربحية العالية قبل الخروج النهائي من السوق.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"عند طرح منتج مبتكر كلياً في مرحلة التقديم دون وجود منافسين مباشرين، تتجه المنظمة غلباً لاستخدام استراتيجية التغلغل السعري السريع.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"يُساعد تخفيض الأسعار في مرحلة النمو على جذب شرائح جديدة من المستهلكين وتوسيع حصة المنظمة السوقية أمام المنافسين الجدد.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"تتطلب مرحلة النضج توجيه السياسة التسعيرية نحو الحفاظ على الحصة السوقية والدفاع عنها عبر تقديم الخصومات وحوافز الشراء للوسطاء.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"في مرحلة الانحدار، قد تلجأ المنظمة إلى استراتيجية \"التصفية السعرية\" (Harvesting) بتقديم أسعار منخفضة جداً للتخلص من المخزون بأسرع وقت.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"يتأثر تسعير السلعة في كافة مراحل دورة حياتها بالهيكل التكلفي المتناقص المترتب على المنحنى التجميعي للخبرة (Experience Curve).","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"تظل الاستراتيجية التسعيرية ثابتة وغير قابلة للتعديل طوال انتقال المنتج عبر المراحل المختلفة لدورة حياته لضمان استقرار العلامة التجارية.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"يتطلب التوزيع الكثيف (Intensive Distribution) اعتماد أسعار تنافسية منخفضة وهوامش ربح منخفضة للوحدة مع الاعتماد على حجم المبيعات المرتفع.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"تُتيح سياسة التوزيع الوحيد (Exclusive Distribution) للمنظمات تحديد أسعار مرتفعة واستخدام استراتيجيات التسعير الممتاز نتيجة غياب المنافسة المباشرة لنفس العلامة داخل المنطقة.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"يؤدي التوزيع الانتقائي (Selective Distribution) إلى تقليل قدرة المنظمة على التحكم في السعر النهائي الموجه للمستهلك مقارنة بالتوزيع الكثيف.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"تتناقص التكاليف التوزيعية والتفاوضية الكلية للمنظمة كلما زاد عدد المستويات التوزيعية في القناة، مما يسمح بخفض السعر النهائي للسلعة.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"يُساهم إعطاء الوسطاء في سياسة التوزيع الوحيد هوامش ربح مجزية في زيادة التزامهم بتطبيق السياسات التسعيرية والمعايير الخدمية المعتمدة من المنظمة.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"يفرض التوزيع الكثيف صعوبات بالغة على الشركة المصنعة في السيطرة على السعر النهائي للمستهلك لمنع الصراعات السعرية بين الموزعين.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"تُعد سياسة التوزيع الشامل مناسبة جداً للسلع المتميزة وسلغ التسوق عالية السعر والتي تتطلب جهداً بيعياً خاصاً.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"ترتبط سياسة التوزيع الانتقائي بالسلع التي يبحث عنها المستهلك بناءً على المقارنة بين السعر والجودة، مما يتطلب تسعيراً متوافقاً مع الميزة التنافسية.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"يُعتبر \"الصراع داخل قناة التوزيع\" (Channel Conflict) نتيجة مباشرة للتباين في السياسات التسعيرية والخصومات الممنوحة للموزعين بمختلف مستوياتهم.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"يعتمد اختيار سياسة التوزيع على نوع السلعة فقط دون أن يكون للسياسة التسعيرية المستهدفة أي تأثير على تصميم القناة التوزيعية.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"ترتكز استراتيجية الدفع (Push Strategy) على توجيه الجهود الترويجية ونسب خصومات أكبر للوسطاء لتشجيعهم على طلب المنتج وعرضه للمستهلك النهائي.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"تعتمد استراتيجية الجذب (Pull Strategy) بشكل رئيسي على خلق طلب مباشر من المستهلك النهائي عبر الإعلانات والحملات الترويجية الضخمة لدفعه للتساؤل عن المنتج لدى الموزعين.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"تتطلب استراتيجية الجذب إعطاء الوسطاء والموزعين أكبر هامش ربح ممكن مقارنة بالإنفاق على الإعلان الموجه للمستهلك.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"تتماشى استراتيجية التغلغل السعري والأسعار المنخفضة بشكل أكبر مع استراتيجية الجذب القائمة على خلق حجم طلب جماهيري واسع.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"في استراتيجية الدفع، تكون تكاليف الترويج المباشر للمستهلك مرتفعة جداً مما يستوجب رفع السعر النهائي لتغطية التكاليف الإعلانية.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"تُعد استراتيجية كشط السوق مع الأسعار المرتفعة أكثر ملاءمة عند استخدام استراتيجية دفع تضمن مشاركة جادة من قنوات التوزيع الممتازة.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"تُقلل استراتيجية الجذب الناجحة من القوة التفاوضية للوسطاء وتمنح المنظمة المصنعة مرونة أكبر في فرض سياساتها السعرية.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"تعتمد استراتيجية الدفع بشكل أساسي على أدوات البيع الشخصي والمفاوضات وحوافز البيع الموجهة لرجال البيع والموزعين.","opts":["صح","خطأ"],"ans":0},{"cat":"drmf","q":"تؤدي استراتيجية الجذب إلى زيادة المخاطر السعرية للشركة نتيجة اعتمادها المباشر على قوة الوسطاء في تحديد سعر التجزئة النهائي.","opts":["صح","خطأ"],"ans":1},{"cat":"drmf","q":"يُعد التكامل بين استراتيجيتي الدفع والجذب نهجاً حاسماً للمنظمات لتحقيق توازن بين قوة العلامة التجارية والانتشار السعري والتوزيعي المناسب.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"يقتصر التسويق على البيع والإعلان فقط.","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"إن التسويق نشاط إداري واجتماعي يهدف إلى إشباع حاجات ورغبات العملاء.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"يركز مفهوم التسويق على المنتج قبل حاجات العميل.","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"التسويق يبدأ قبل الإنتاج وينتهي بعد البيع.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"التسويق يشمل تبادل القيمة بين المنظمة والعملاء.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"إن مفهوم التسويق الحديث يضع العميل في مركز الاهتمام.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"التسويق يساعد المنظمة على التعرف على حاجات السوق.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"لا يؤثر التسويق في تحقيق الأرباح.","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"يساهم التسويق في بناء علاقات طويلة الأمد مع العملاء.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"يقلل التسويق من قدرة المنظمة على المنافسة.","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"يساعد التسويق في توجيه الإنتاج حسب رغبات المستهلكين.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"إن التسويق ضروري فقط للمنظمات الربحية.","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"تعد زيادة حصة السوق من أهداف التسويق.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"من أهداف التسويق تحقيق رضا العملاء.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"من أهداف التسويق تقليل المبيعات إلى أدنى مستوى.","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"من أهداف التسويق بناء صورة ذهنية إيجابية للمنظمة.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"من أهداف التسويق تحديد الأسواق المستهدفة.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"من أهداف التسويق إلغاء التواصل مع العملاء.","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"إن تحليل السوق من مراحل التسويق.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"تحديد السوق المستهدف من مراحل التسويق.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"إن تطوير المزيج التسويقي من مراحل التسويق.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"تنفيذ الخطط التسويقية ومراقبتها من مراحل التسويق.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"تأتي مرحلة التقييم والرقابة قبل تحليل السوق دائماً.","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"إجراء بحوث التسويق لا علاقة له بمراحل التسويق.","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"يتكون المزيج التسويقي من المنتج والسعر والتوزيع والترويج.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"المنتج في المزيج التسويقي يشمل الخدمات أيضاً.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"السعر هو القيمة التي يدفعها العميل مقابل الحصول على المنتج.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"إن التوزيع يعني نقل الملكية فقط دون إيصال المنتج للمستهلك.","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"الترويج يشمل الإعلان والبيع الشخصي وتنشيط المبيعات والعلاقات العامة.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"لا يتأثر المزيج التسويقي بالبيئة التسويقية.","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"التوزيع يشمل قنوات التسويق واللوجستيات.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"يمكن تعديل عناصر المزيج التسويقي حسب السوق المستهدف.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"إن التسويق نشاط متغير وديناميكي.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"يقتصر التسويق على فترة زمنية محددة فقط.","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"التسويق نشاط شامل يتكامل مع بقية وظائف المنظمة.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"التسويق موجه نحو العميل ويهتم بالعلاقات.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"من مبادئ التسويق التركيز على العميل.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"من مبادئ التسويق تقسيم السوق واختيار السوق المستهدف.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"من مبادئ التسويق تجاهل المنافسة.","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"من مبادئ التسويق التكامل بين عناصر المزيج التسويقي.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"يعد تحديد هدف التسعير هو الخطوة الأولى في عملية تطوير السعر.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"يعتمد التسعير على أساس التكلفة بشكل أساسي على القيمة التي يدركها العميل للمنتج.","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"في استراتيجية تسعير الاختراق، يتم البدء بسعر مرتفع للمنتج الجديد ثم تخفيضه تدريجياً.","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"تعتبر نقطة التعادل هي النقطة التي يتساوى عندها إجمالي الإيرادات مع إجمالي التكاليف، فلا تحقق الشركة ربحاً ولا خسارة.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"كلما زادت مرونة الطلب السعرية لمنتج ما، أصبح من الأسهل على الشركة رفع سعره دون التأثير سلباً على الكمية المطلوبة.","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"يُعد تسعير \"الكشط\" استراتيجية مناسبة للمنتجات المبتكرة التي لها ميزة تنافسية أولية.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"في التسعير على أساس المنافسة، يتم تجاهل أسعار المنافسين تماماً والاعتماد فقط على التكاليف الداخلية.","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"يشير \"تسعير الأرقام الفردية\" مثل تسعير سلعة بـ 9.99 بدلاً من 10.00 إلى أسلوب في التسعير النفسي.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"من عيوب التسعير على أساس التكلفة الكلية أنه قد يتجاهل ظروف الطلب في السوق.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"\"التمييز السعري من الدرجة الأولى\" يعني أن تبيع الشركة نفس المنتج بأسعار مختلفة لمجموعات مختلفة من المستهلكين (مثل خصم الطلاب).","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"تستخدم استراتيجية \"التسعير على أساس القيمة المدركة\" عندما يكون المنتج فريداً ويصعب على العملاء مقارنته بالبدائل.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"في تحليل نقطة التعادل، إذا كان السعر المحدد للمنتج أقل من سعر التعادل، فإن الشركة ستحقق أرباحاً.","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"يصنف \"تسعير الاختراق\" كاستراتيجية تسعير موجهة نحو السوق أو الطلب.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"يمكن أن يكون انخفاض حساسية العميل للسعر مرتبطاً بكون تكلفة المنتج تمثل نسبة صغيرة من إجمالي دخله.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"استراتيجية \"التسعير الجغرافي\" تعني تحديد سعر واحد موحد لجميع الأسواق بغض النظر عن الموقع الجغرافي.","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"يعتبر التسعير على أساس التكلفة أكثر ملاءمة في البيئات التنافسية الشديدة حيث تكون المنتجات موحدة.","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"إن هامش الربح هو الفرق بين سعر بيع المنتج وتكلفته.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"في استراتيجية \"التسعير النفسي\"، يمكن أن يؤدي وضع سعر مرتفع بشكل مصطنع إلى خلق انطباع بجودة أعلى للمنتج.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"تؤدي زيادة عدد البدائل المتاحة للمستهلك إلى انخفاض حساسيته تجاه سعر المنتج.","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"تعتمد طريقة التسعير على أساس \"العائد المستهدف على الاستثمار\" على تحديد سعر يضمن تحقيق معدل عائد محدد مسبقاً على رأس المال المستثمر.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"تعد أهداف التسعير الموجهة نحو \"الوضع الراهن\" من أكثر الأهداف شيوعاً في الأسواق المستقرة، وتهدف إلى الحفاظ على الأسعار الحالية أو مجاراة أسعار المنافسين.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"خصم الكمية هو تخفيض في السعر يُمنح للمشتري عندما يشتري كمية كبيرة من المنتج.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"في مرحلة \"التقديم\" من دورة حياة المنتج، تكون استراتيجية تسعير الكشط مناسبة دائماً لكل أنواع المنتجات.","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"يمكن قياس حساسية السعر للعميل من خلال مراقبة استجابته عند تغيير أسعار العلامات التجارية في تجربة مسيطر عليها.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"\"التسعير على أساس القيمة\" يبدأ بتصميم المنتج ثم حساب التكلفة ثم إضافة هامش الربح لتحديد السعر النهائي.","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"عندما يكون الطلب على منتج ما \"غير مرن\"، فإن رفع سعره يؤدي إلى زيادة في إجمالي الإيرادات.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"\"التمييز السعري من الدرجة الثانية\" يعتمد على اختيار المستهلك نفسه للفئة السعرية التي تناسبه (مثل خطط الهاتف المختلفة).","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"لا تؤثر التكاليف الثابتة على قرارات التسعير في الأجل القصير بنفس تأثير التكاليف المتغيرة.","opts":["صح","خطأ"],"ans":0},{"cat":"drmb","q":"تعتبر أسعار المنافسين دائماً هي الحد الأعلى الذي يمكن للشركة تسعير منتجها عنده.","opts":["صح","خطأ"],"ans":1},{"cat":"drmb","q":"من مزايا استراتيجية التسعير على أساس المنافسة أنها استراتيجية \"تفاعلية\" بالكامل، مما يمنح الشركة تحكماً كاملاً في مزيجها التسويقي.","opts":["صح","خطأ"],"ans":1}];
+        let state = { category: "all", order: "fixed", mode: "exam", view: "all", questions: [], score: 0, currentIdx: 0, mistakes: [] };
+
+        function updateMaxHint() {
+            const pool = (state.category === 'all') ? db : db.filter(q => q.cat === state.category);
+            document.getElementById('max-label').textContent = "المتاح: " + pool.length;
+            document.getElementById('num-input').max = pool.length;
+            document.getElementById('num-input').value = pool.length;
+        }
+
+        document.querySelectorAll('.chip').forEach(btn => {
+            btn.onclick = function() {
+                this.parentElement.querySelector('.active').classList.remove('active');
+                this.classList.add('active');
+                const val = this.dataset.value;
+                const pid = this.parentElement.id;
+                if(pid === 'category-selector') { state.category = val; updateMaxHint(); }
+                if(pid === 'order-selector') { 
+                    state.order = val; 
+                    document.getElementById('num-section').style.display = (val === 'random') ? 'block' : 'none';
+                    updateMaxHint();
+                }
+                if(pid === 'mode-combined') {
+                    state.mode = val.includes('exam') ? 'exam' : 'study';
+                    state.view = val.includes('all') ? 'all' : 'one';
+                }
+            };
+        });
+        updateMaxHint();
+
+        function initQuiz() {
+            let pool = (state.category === 'all') ? [...db] : db.filter(q => q.cat === state.category);
+            let num = (state.order === 'fixed') ? pool.length : (parseInt(document.getElementById('num-input').value) || pool.length);
+            if(state.order === 'random') pool.sort(() => Math.random() - 0.5);
+            state.questions = pool.slice(0, num);
+            document.getElementById('setup-screen').classList.remove('active');
+            document.getElementById('quiz-screen').classList.add('active');
+            if(state.view === 'all') renderAll(); else showOne();
+        }
+
+        function renderAll() {
+            const cont = document.getElementById('quiz-content');
+            cont.innerHTML = '';
+            state.questions.forEach((q, idx) => {
+                const block = document.createElement('div');
+                block.className = 'question-block';
+                block.innerHTML = '<div class="question-text">'+(idx+1)+'. '+q.q+'</div>';
+                const optsDiv = document.createElement('div');
+                q.opts.forEach((opt, oIdx) => {
+                    const div = document.createElement('div');
+                    div.className = 'option-item'; div.textContent = opt;
+                    div.onclick = () => {
+                        if(optsDiv.classList.contains('locked')) return;
+                        if(state.mode === 'study') {
+                            optsDiv.classList.add('locked');
+                            if(oIdx === q.ans) div.classList.add('correct');
+                            else { div.classList.add('incorrect'); optsDiv.children[q.ans].classList.add('correct'); }
+                        } else {
+                            optsDiv.querySelectorAll('.option-item').forEach(s => s.classList.remove('selected-temp'));
+                            div.classList.add('selected-temp');
+                        }
+                        q.userAns = oIdx;
+                    };
+                    optsDiv.appendChild(div);
+                });
+                block.appendChild(optsDiv);
+                cont.appendChild(block);
+            });
+            document.getElementById('submit-btn').style.display = 'block';
+        }
+
+        function showOne() {
+            const q = state.questions[state.currentIdx];
+            const cont = document.getElementById('quiz-content');
+            cont.innerHTML = '<div class="question-text">'+q.q+'</div><div id="opts"></div>';
+            document.getElementById('q-counter').textContent = 'سؤال ' + (state.currentIdx+1) + ' من ' + state.questions.length;
+            q.opts.forEach((opt, i) => {
+                const div = document.createElement('div');
+                div.className = 'option-item'; div.textContent = opt;
+                div.onclick = () => {
+                    const optsDiv = document.getElementById('opts');
+                    if(optsDiv.classList.contains('locked')) return;
+                    optsDiv.classList.add('locked');
+                    if(i === q.ans) { div.classList.add('correct'); state.score++; }
+                    else { div.classList.add('incorrect'); optsDiv.children[q.ans].classList.add('correct'); state.mistakes.push({q:q.q, a:q.opts[q.ans]}); }
+                    document.getElementById('next-btn').style.display = 'block';
+                };
+                document.getElementById('opts').appendChild(div);
+            });
+        }
+
+        function nextQuestion() {
+            state.currentIdx++;
+            if(state.currentIdx < state.questions.length) { showOne(); document.getElementById('next-btn').style.display='none'; }
+            else showResult();
+        }
+
+        function handleFullSubmit() {
+            if(state.mode === 'exam') {
+                state.score = 0; state.mistakes = [];
+                state.questions.forEach(q => {
+                    if(q.userAns === q.ans) state.score++;
+                    else state.mistakes.push({q:q.q, a:q.opts[q.ans]});
+                });
+            }
+            showResult();
+        }
+
+        function showResult() {
+            document.getElementById('quiz-screen').classList.remove('active');
+            document.getElementById('result-screen').classList.add('active');
+            document.getElementById('res-msg').textContent = state.score + " / " + state.questions.length;
+            const report = document.getElementById('mistakes-report');
+            report.innerHTML = state.mistakes.map(m => '<div style="background:#FFF5F5; padding:10px; margin-bottom:10px; border-radius:8px; border-right:4px solid #F56565"><b>س:</b> '+m.q+'<br><span style="color:green"><b>الصح:</b> '+m.a+'</span></div>').join('');
+        }
+    </script>
+</body>
+</html>
